@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: TrafficAI
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+springdoc:
+  swagger-ui:
+    path: "/traffic/backend/"
+  api-docs:
+    path: "/traffic/backend/v3/api-docs"
+server:
+  port: 8081
