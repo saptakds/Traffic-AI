@@ -12,3 +12,13 @@ springdoc:
     path: "/traffic/backend/v3/api-docs"
 server:
   port: 8081
+traffic-ai:
+  frame-extraction:
+    interval-seconds: 5
+custom-vision:
+  prediction:
+    key: ${CV_PREDICTION_KEY}
+    endpoint: ${CV_PREDICTION_ENDPOINT}
+    project-id: ${CV_PREDICTION_PROJECT_ID}
+    published-name: ${CV_PREDICTION_PUBLISHED_NAME}
+    prediction-threshold: 0.7
