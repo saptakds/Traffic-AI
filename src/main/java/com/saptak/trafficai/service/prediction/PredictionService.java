@@ -1,7 +1,11 @@
-package com.saptak.trafficai.service;
+package com.saptak.trafficai.service.prediction;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.saptak.trafficai.config.CustomVisionConfig;
+import com.saptak.trafficai.enums.Camera;
+import com.saptak.trafficai.enums.Road;
+import com.saptak.trafficai.mapper.CameraRoadMapper;
+import com.saptak.trafficai.state.SignalControlStateManager;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,22 +24,46 @@ public class PredictionService {
     public static final Logger logger = LoggerFactory.getLogger(PredictionService.class);
 
     private final CustomVisionConfig customVisionConfig;
+    private final SignalControlStateManager signalControlStateManager;
 
-    public void checkForAmbulance(List<File> frameFiles) {
-        for (File frame : frameFiles) {
+    public void checkForAmbulance(List<File> frames, Camera camera) {
+        Road road = CameraRoadMapper.getRoadForCamera(camera);
+        boolean ambulanceDetected = false;
+
+        // ACTUAL DETECTION - Using Azure Custom Vision Model
+        for (File frame : frames) {
             try {
                 JsonNode response = predictSingleFrame(frame);
-                logger.info("Prediction for {}: {}", frame.getName(), response.toPrettyString());
-                response.get("predictions").forEach(prediction -> {
+                logger.info("Prediction for {}: {}", frame.getName(), response);
+
+                for (JsonNode prediction : response.get("predictions")) {
                     String tagName = prediction.get("tagName").asText();
                     double probability = prediction.get("probability").asDouble();
-                    if ("ambulance".equalsIgnoreCase(tagName) && probability > customVisionConfig.getPredictionThreshold()) {
-                        logger.info("🚨 Ambulance detected in {} with confidence {}%", frame.getName(), Math.round(probability * 100));
+
+                    if ("ambulance".equalsIgnoreCase(tagName) &&
+                            probability > customVisionConfig.getPredictionThreshold()) {
+
+                        logger.info("🚨 Ambulance detected in {} on {} with confidence {}%",
+                                frame.getName(), road, Math.round(probability * 100));
+                        ambulanceDetected = true;
+                        break; // no need to process more predictions in this frame
                     }
-                });
+                }
+
+                if (ambulanceDetected) break; // break early if found in any frame
+
             } catch (Exception e) {
                 logger.error("Failed to predict frame: {}", frame.getName(), e);
             }
+        }
+
+        // DETECTION DECOY ONLY - To avoid Custom Vision API Limits
+//        ambulanceDetected = frames.size() > 5;
+
+        if (ambulanceDetected) {
+            signalControlStateManager.enterPriorityMode(road);
+        } else {
+            signalControlStateManager.exitPriorityModeIfSafe(road);
         }
     }
 

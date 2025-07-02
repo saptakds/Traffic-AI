@@ -2,7 +2,7 @@ package com.saptak.trafficai.controller.v1;
 
 import com.saptak.trafficai.enums.Camera;
 import com.saptak.trafficai.model.video.VideoResponse;
-import com.saptak.trafficai.service.VideoService;
+import com.saptak.trafficai.service.video.VideoService;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

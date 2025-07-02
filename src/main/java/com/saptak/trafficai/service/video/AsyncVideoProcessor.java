@@ -1,6 +1,8 @@
-package com.saptak.trafficai.service;
+package com.saptak.trafficai.service.video;
 
 import com.saptak.trafficai.config.FrameExtractionConfig;
+import com.saptak.trafficai.enums.Camera;
+import com.saptak.trafficai.service.prediction.PredictionService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +25,7 @@ public class AsyncVideoProcessor {
     private final PredictionService predictionService;
 
     @Async
-    public void analyseVideo(MultipartFile videoFile) {
+    public void analyseVideo(MultipartFile videoFile, Camera camera) {
         File tempFile = null;
         try {
             logger.info("Started async video analysis for: {}", videoFile.getOriginalFilename());
@@ -34,7 +36,7 @@ public class AsyncVideoProcessor {
             List<File> frames = frameExtractorService.extractFrames(tempFile, config.getIntervalSeconds());
             logger.info("Extracted {} frames from video: {}", frames.size(), videoFile.getOriginalFilename());
 
-            predictionService.checkForAmbulance(frames);
+            predictionService.checkForAmbulance(frames, camera);
 
         } catch (IOException e) {
             logger.error("I/O error while processing video: {}", videoFile.getOriginalFilename(), e);
