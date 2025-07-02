@@ -1,4 +1,4 @@
-package com.saptak.trafficai.service;
+package com.saptak.trafficai.service.video;
 
 import com.saptak.trafficai.enums.Camera;
 import com.saptak.trafficai.model.video.VideoResponse;
@@ -18,7 +18,7 @@ public class VideoService {
 
     public VideoResponse getVideoUploadResult(MultipartFile videoFile, Camera camera) {
         long timestamp = System.currentTimeMillis();
-        asyncVideoProcessor.analyseVideo(videoFile);
+        asyncVideoProcessor.analyseVideo(videoFile, camera);
         return VideoResponse.builder()
                 .fileName(videoFile.getOriginalFilename())
                 .camera(camera)

@@ -22,7 +22,7 @@ TrafficAI proposes an AI-first, automation-friendly solution:
 
 ---
 
-## ✅ Current Capabilities
+## ✅ Current Capabilities (as of Day 3)
 
 ### 🔼 Video Upload & Ingestion
 
@@ -34,6 +34,7 @@ TrafficAI proposes an AI-first, automation-friendly solution:
 ### 🎥 Frame Extraction & Processing
 
 - Frames are extracted every 5 seconds from uploaded videos
+- Powered by JavaCV (FFmpegFrameGrabber)
 - Async processing enabled using `@Async` to avoid blocking I/O
 - Temporary files are cleaned up post-processing
 
@@ -42,14 +43,24 @@ TrafficAI proposes an AI-first, automation-friendly solution:
 - Integrated with Azure Custom Vision for inference
 - Configurable prediction threshold via `application.yml`
 - Logs confidence scores for each frame's prediction
-- Decoupled service layer for easy extension/replacement
+- Decoupled prediction service for modularity
+
+### 🚦 Traffic Signal Control Logic
+
+- Round-robin signal switching across four roads
+- Signal interval configurable (default: 10s)
+- Ambulance detection triggers **priority mode** for the affected road
+- Priority mode overrides round-robin until timeout (default: 30s)
+- Logs signal state changes with context (priority or regular)
+- Periodic 10s logging ensures visibility even during priority mode
 
 ### ⚙️ Tech Stack
 
 - **Spring Boot 3.5.3** (Java 21)
 - **Azure Custom Vision** for ambulance classification
 - **JavaCV (FFmpeg)** for frame extraction
-- **WebClient (Spring WebFlux)** for non-blocking API calls
+- **Spring WebClient** for non-blocking HTTP calls
+- **Spring Scheduling & Async** for timed signal control
 - **Springdoc OpenAPI** for Swagger documentation
 
 ---
@@ -72,6 +83,9 @@ Upload traffic footage with the camera identifier.
 
 ```yaml
 traffic-ai:
+  signal:
+    round-robin-interval-ms: 10000
+    priority-timeout-ms: 30000
   frame-extraction:
     interval-seconds: 5
 
@@ -86,12 +100,13 @@ custom-vision:
 
 ---
 
-## 🚦 Roadmap
+## 🧭 Roadmap
 
-* Store and return prediction results to client
-* Add video-to-signal decision simulator
-* Integrate historical decision logging for analytics
-* Write unit + integration tests for prediction workflow
+* Return AI prediction results in the upload response
+* Build frontend simulator to visualize signal changes
+* Log and persist signal state transitions for audit/analytics
+* Integrate WebSocket for real-time frontend sync
+* Add unit + integration tests for prediction and control logic
 
 ---
 

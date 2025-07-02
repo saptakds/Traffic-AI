@@ -1,4 +1,4 @@
-package com.saptak.trafficai.service;
+package com.saptak.trafficai.service.video;
 
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.Frame;

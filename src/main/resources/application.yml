@@ -13,6 +13,9 @@ springdoc:
 server:
   port: 8081
 traffic-ai:
+  signal:
+    round-robin-interval-ms: 10000
+    priority-timeout-ms: 30000
   frame-extraction:
     interval-seconds: 5
 custom-vision:
