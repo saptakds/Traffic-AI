@@ -19,6 +19,7 @@ public class CustomVisionConfig {
     private String projectId;
     private String publishedName;
     private double predictionThreshold;
+    private boolean decoyMode;
 
     @Bean
     public WebClient getCustomVisionClient() {

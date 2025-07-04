@@ -8,6 +8,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -15,11 +16,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.saptak.trafficai.common.Strings.WEBSOCKET_VERSION_1;
+
 @Component
 @RequiredArgsConstructor
 public class SignalControlStateManager {
     private static final Logger logger = LoggerFactory.getLogger(SignalControlStateManager.class);
     private final SignalConfig signalConfig;
+    private final SimpMessagingTemplate messagingTemplate;
 
     private final Map<Road, Signal> signalMap = new ConcurrentHashMap<>();
     private final List<Road> roads = List.of(Road.values());
@@ -37,6 +41,8 @@ public class SignalControlStateManager {
         }
         signalMap.put(roads.getFirst(), Signal.GREEN);
         logger.info("Initialized signal state: {}", getCurrentState());
+
+        broadcastStateChange();
         logger.info("Signal interval: {} ms", signalConfig.getRoundRobinIntervalMs());
     }
 
@@ -55,6 +61,7 @@ public class SignalControlStateManager {
         signalMap.put(nextGreen, Signal.GREEN);
 
         logger.info("Signal rotated: {}", getCurrentState());
+        broadcastStateChange();
     }
 
     public synchronized void enterPriorityMode(Road road) {
@@ -69,6 +76,7 @@ public class SignalControlStateManager {
             }
 
             logger.info("Priority signal state: {}", getCurrentState());
+            broadcastStateChange();
         }
     }
 
@@ -84,6 +92,7 @@ public class SignalControlStateManager {
             }
 
             logger.info("Resumed round-robin state: {}", getCurrentState());
+            broadcastStateChange();
         }
     }
 
@@ -93,6 +102,10 @@ public class SignalControlStateManager {
             logger.info("⏱️ Priority mode timed out for {}. Reverting to round-robin.", priorityRoad);
             exitPriorityModeIfSafe(priorityRoad);
         }
+    }
+
+    private void broadcastStateChange() {
+        messagingTemplate.convertAndSend(WEBSOCKET_VERSION_1 + "/traffic-signal/state", getCurrentState());
     }
 
     public synchronized SignalState getCurrentState() {
