@@ -30,35 +30,36 @@ public class PredictionService {
         Road road = CameraRoadMapper.getRoadForCamera(camera);
         boolean ambulanceDetected = false;
 
-        // ACTUAL DETECTION - Using Azure Custom Vision Model
-        for (File frame : frames) {
-            try {
-                JsonNode response = predictSingleFrame(frame);
-                logger.info("Prediction for {}: {}", frame.getName(), response);
+        if(customVisionConfig.isDecoyMode()){   // DETECTION DECOY ONLY - To avoid Custom Vision API Limits
+            ambulanceDetected = frames.size() > 5;
+        }
+        else{   // ACTUAL DETECTION - Using Azure Custom Vision Model
+            for (File frame : frames) {
+                try {
+                    JsonNode response = predictSingleFrame(frame);
+                    logger.info("Prediction for {}: {}", frame.getName(), response);
 
-                for (JsonNode prediction : response.get("predictions")) {
-                    String tagName = prediction.get("tagName").asText();
-                    double probability = prediction.get("probability").asDouble();
+                    for (JsonNode prediction : response.get("predictions")) {
+                        String tagName = prediction.get("tagName").asText();
+                        double probability = prediction.get("probability").asDouble();
 
-                    if ("ambulance".equalsIgnoreCase(tagName) &&
-                            probability > customVisionConfig.getPredictionThreshold()) {
+                        if ("ambulance".equalsIgnoreCase(tagName) &&
+                                probability > customVisionConfig.getPredictionThreshold()) {
 
-                        logger.info("🚨 Ambulance detected in {} on {} with confidence {}%",
-                                frame.getName(), road, Math.round(probability * 100));
-                        ambulanceDetected = true;
-                        break; // no need to process more predictions in this frame
+                            logger.info("🚨 Ambulance detected in {} on {} with confidence {}%",
+                                    frame.getName(), road, Math.round(probability * 100));
+                            ambulanceDetected = true;
+                            break; // no need to process more predictions in this frame
+                        }
                     }
+
+                    if (ambulanceDetected) break; // break early if found in any frame
+
+                } catch (Exception e) {
+                    logger.error("Failed to predict frame: {}", frame.getName(), e);
                 }
-
-                if (ambulanceDetected) break; // break early if found in any frame
-
-            } catch (Exception e) {
-                logger.error("Failed to predict frame: {}", frame.getName(), e);
             }
         }
-
-        // DETECTION DECOY ONLY - To avoid Custom Vision API Limits
-//        ambulanceDetected = frames.size() > 5;
 
         if (ambulanceDetected) {
             signalControlStateManager.enterPriorityMode(road);

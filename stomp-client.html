@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>STOMP WebSocket Client</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+</head>
+<body>
+<h2>STOMP Client</h2>
+<button onclick="connect()">Connect</button>
+<button onclick="disconnect()">Disconnect</button>
+<pre id="output"></pre>
+
+<script>
+    let stompClient = null;
+
+    function log(message) {
+      const output = document.getElementById("output");
+      output.textContent += message + "\n";
+    }
+
+    function connect() {
+      const socket = new SockJS("http://localhost:8081/ws");
+      stompClient = Stomp.over(socket);
+      stompClient.debug = null; // disable logs
+
+      stompClient.connect({}, function (frame) {
+        log("✅ Connected: " + frame);
+
+        stompClient.subscribe("/topic/v1/traffic-signal/state", function (message) {
+          log("📨 Message: " + message.body);
+        });
+      }, function (error) {
+        log("❌ Error: " + error);
+      });
+    }
+
+    function disconnect() {
+      if (stompClient !== null) {
+        stompClient.disconnect(function () {
+          log("🔌 Disconnected");
+        });
+      }
+    }
+</script>
+</body>
+</html>
