@@ -8,7 +8,7 @@
 ## 🔍 The Problem
 
 Emergency vehicles like ambulances often lose critical time waiting in traffic.
-Traditional traffic signal systems are not equipped to detect such vehicles or dynamically reprioritize signal flow during emergencies — especially under peak congestion.
+Traditional traffic signal systems aren’t equipped to detect such vehicles or dynamically reprioritize flow during emergencies — especially in urban congestion.
 
 ---
 
@@ -16,81 +16,114 @@ Traditional traffic signal systems are not equipped to detect such vehicles or d
 
 TrafficAI proposes an AI-first, automation-friendly solution:
 
-* Leverage existing CCTV infrastructure at traffic intersections.
-* Detect ambulances using cloud-based computer vision models.
-* Modify signal timing to prioritize emergency vehicle paths.
+* Leverage existing CCTV infrastructure at intersections
+* Detect ambulances using cloud-based computer vision
+* Dynamically alter signal flow to prioritize emergency vehicles
 
 ---
 
-## ✅ Current Capabilities (as of Day 4)
+## ✅ Current Capabilities (as of Day 5)
 
 ### 🔼 Video Upload & Ingestion
 
 * REST API to upload traffic footage with camera ID
 * Enum-based camera identifiers (`CAM_A` to `CAM_D`)
-* Swagger UI for quick testing and validation
-* Multipart support with a 100MB upload limit
+* Swagger UI for quick testing
+* Multipart support with 100MB limit
 
 ### 🎥 Frame Extraction & Processing
 
-* Frames are extracted every 5 seconds from uploaded videos
-* Powered by JavaCV (FFmpegFrameGrabber)
-* Async processing using `@Async` avoids blocking I/O
-* Temporary files are auto-cleaned post-processing
+* Frames extracted every 5 seconds using JavaCV
+* Async processing ensures non-blocking operations
+* Temporary files auto-cleaned post-processing
 
 ### 🧠 Ambulance Detection (AI)
 
-* Integrated with Azure Custom Vision for inference
-* Decoy mode for testing without hitting API limits
-* Configurable prediction threshold via `application.yml`
-* Logs ambulance detection confidence scores
-* Maps each camera to a road using enums
+* Integrated with Azure Custom Vision
+* Supports **decoy mode** for safe testing
+* Logs ambulance detection results with confidence
+* Maps each camera to a road (`ROAD_A` to `ROAD_D`)
 
 ### 🚦 Traffic Signal Control Logic
 
-* Round-robin switching across four roads (`ROAD_A` to `ROAD_D`)
-* Signal state updates every 10 seconds (configurable)
-* Ambulance detection triggers **priority mode** for affected road
-* Priority mode overrides rotation for 30s (configurable)
-* After timeout, system gracefully reverts to round-robin
-* Logs signal changes and transitions clearly
+* Round-robin switching every 10 seconds (configurable)
+* **Priority mode** for ambulance-detected roads
+* Priority persists for 30 seconds (configurable), then reverts
+* Logs state transitions with clarity and timestamps
 
 ### 📡 Real-Time WebSocket Integration
 
-* Signal state changes are broadcast in real-time via STOMP over WebSocket
-* Lightweight test client using SockJS + StompJS for live monitoring
-* Endpoint: `/ws`, Topic: `/topic/v1/traffic-signal/state`
-* Enables real-time visual feedback for future frontend simulator
+* Signal state updates published to: `/topic/v1/traffic-signal/state`
+* WebSocket endpoint: `/ws`, powered by STOMP over SockJS
+* Confirmed working with a plain HTML + SockJS client
 
-### ⚙️ Tech Stack
+### 🧩 New in Day 5 — Frontend Visualization with React
 
-* **Spring Boot 3.5.3** (Java 21)
-* **Azure Custom Vision** for ambulance classification
-* **JavaCV (FFmpeg)** for frame extraction
-* **Spring WebClient** for non-blocking HTTP calls
-* **Spring Scheduling & Async** for timed signal control
-* **Spring WebSocket (STOMP)** for live broadcasting
-* **Springdoc OpenAPI** for Swagger documentation
+TrafficAI now includes a **React 19** frontend to **visually simulate the 4-road intersection** and its signal states in real time.
+
+* 💻 **Built with Vite + React + TypeScript**
+* 🧠 State managed using **MobX** with root store pattern
+* ⚙️ Config-driven architecture via `public/config.json`
+* 🔄 Connects to backend WebSocket and reflects live signal state updates
+* ✅ Built using modular, production-grade best practices
+* 📜 Displays real-time signal state logs in a clean UI panel
+* 🚧 Road-based signal light visualizations coming soon in Day 6
+
+---
+
+## 🖥️ Frontend Architecture
+
+```text
+traffic-ai-react/
+├── public/
+│   └── config.json              # Runtime-configurable URLs and feature flags
+├── src/
+│   ├── components/
+│   │   └── IntersectionPage.tsx  # Core UI (logs + upcoming signal visuals)
+│   ├── hooks/
+│   │   └── useSignalState.ts     # WebSocket logic + state binding
+│   ├── stores/
+│   │   ├── ConfigStore.ts
+│   │   ├── SignalStore.ts
+│   │   ├── RootStore.ts
+│   │   └── StoreContext.ts
+│   └── types/
+│       └── SignalState.ts        # Strongly typed signal state model
+```
 
 ---
 
 ## 📂 API Endpoint
 
 **POST** `/traffic/backend/api/v1/video/upload`
-Upload traffic footage with the camera identifier.
+Upload traffic footage with camera identifier.
 
 **Request Parameters:**
 
-* `videoFile` (MultipartFile) – video clip to analyze
-* `camera` (Enum) – one of `CAM_A`, `CAM_B`, `CAM_C`, `CAM_D`
+* `videoFile` (MultipartFile) – Video clip to analyze
+* `camera` (Enum) – One of `CAM_A`, `CAM_B`, `CAM_C`, `CAM_D`
 
 **Returns:**
-
-* File metadata and success message
+Metadata + success message
 
 ---
 
-## 🔧 Configuration Highlights
+## 🧠 Signal State Model
+
+```ts
+type Road = 'ROAD_A' | 'ROAD_B' | 'ROAD_C' | 'ROAD_D';
+type SignalColor = 'RED' | 'GREEN';
+
+interface SignalState {
+  signalMap: Record<Road, SignalColor>;
+  isPriorityMode: boolean;
+  priorityRoad: Road | null;
+}
+```
+
+---
+
+## 🛠️ Config (Backend `application.yml`)
 
 ```yaml
 traffic-ai:
@@ -112,13 +145,31 @@ custom-vision:
 
 ---
 
+## ⚙️ Config (Frontend `public/config.json`)
+
+```json
+{
+  "webSocketBaseUrl": "http://localhost:8081/ws",
+  "backEndBaseUrl": "http://localhost:8081/traffic/backend/api/v1",
+  "topics": {
+    "baseUrl": "/topic/v1",
+    "signal": "/traffic-signal/state"
+  },
+  "featureFlags": {
+    "roads": true,
+    "signal": true
+  }
+}
+```
+
+---
+
 ## 🧭 Roadmap
 
-* Return AI prediction results in the upload response
-* Build a frontend simulator using React + TypeScript
-* Visualize signal state updates in real-time via WebSocket
-* Persist signal transitions for audit & analytics
-* Add unit and integration tests for detection + state logic
+* 🟢 **\[Next]** Render live 4-road signal intersection with colored signals
+* 🚨 Blink ambulance icons and priority roads during priority mode
+* 📝 Add visual countdown timers per signal
+* 🔍 Camera activity and mock prediction feed simulation
 
 ---
 
@@ -126,4 +177,4 @@ custom-vision:
 
 Built with ❤️ by [Saptak Das](https://github.com/saptakds)
 
-Exploring practical AI for smart infrastructure.
+Exploring practical AI for smarter cities and public safety.
