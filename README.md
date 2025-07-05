@@ -1,7 +1,7 @@
 # 🚦 TrafficAI: AI-Based Ambulance Prioritization at Traffic Signals
 
 > **Smart cities need smarter signals.**
-> TrafficAI is a prototype system that uses video footage from traffic signal cameras to detect ambulances in real-time, enabling automated traffic signal prioritization at intersections.
+> **TrafficAI** is a prototype system that uses video footage from traffic signal cameras to detect ambulances in real-time, enabling automated traffic signal prioritization at intersections.
 
 ---
 
@@ -16,9 +16,9 @@ Traditional traffic signal systems aren’t equipped to detect such vehicles or 
 
 TrafficAI proposes an AI-first, automation-friendly solution:
 
-* Leverage existing CCTV infrastructure at intersections
-* Detect ambulances using cloud-based computer vision
-* Dynamically alter signal flow to prioritize emergency vehicles
+* ✅ Leverage existing CCTV infrastructure at intersections
+* ✅ Detect ambulances using cloud-based computer vision
+* ✅ Dynamically alter signal flow to prioritize emergency vehicles
 
 ---
 
@@ -46,49 +46,62 @@ TrafficAI proposes an AI-first, automation-friendly solution:
 
 ### 🚦 Traffic Signal Control Logic
 
-* Round-robin switching every 10 seconds (configurable)
+* Round-robin switching every 10 seconds (**configurable**)
 * **Priority mode** for ambulance-detected roads
-* Priority persists for 30 seconds (configurable), then reverts
-* Logs state transitions with clarity and timestamps
+* Priority persists for 30 seconds (**configurable**), then reverts
+* Logs signal state transitions with timestamps and clarity
 
 ### 📡 Real-Time WebSocket Integration
 
 * Signal state updates published to: `/topic/v1/traffic-signal/state`
-* WebSocket endpoint: `/ws`, powered by STOMP over SockJS
-* Confirmed working with a plain HTML + SockJS client
+* WebSocket endpoint: `/ws`, powered by **STOMP over SockJS**
+* Verified working with HTML + SockJS test client
 
-### 🧩 New in Day 5 — Frontend Visualization with React
+---
 
-TrafficAI now includes a **React 19** frontend to **visually simulate the 4-road intersection** and its signal states in real time.
+### 💻 Frontend Simulation UI — Round-Robin Mode Now Live!
 
-* 💻 **Built with Vite + React + TypeScript**
-* 🧠 State managed using **MobX** with root store pattern
-* ⚙️ Config-driven architecture via `public/config.json`
-* 🔄 Connects to backend WebSocket and reflects live signal state updates
-* ✅ Built using modular, production-grade best practices
-* 📜 Displays real-time signal state logs in a clean UI panel
-* 🚧 Road-based signal light visualizations coming soon in Day 6
+TrafficAI now features a working **React 19 frontend** that visualizes **real-time round-robin traffic signal behavior** at a 4-road intersection.
+
+> 🟡 **Note:** As of Day 5, this UI handles only **round-robin mode**.
+> 🚨 **Ambulance detection and priority visualizations** are planned for Day 6.
+
+**Features completed:**
+
+* Built with **Vite + React + TypeScript**
+* Uses **Tailwind CSS** for layout and theming
+* WebSocket-driven updates from backend
+* State management via **MobX** root store pattern
+* Config-driven architecture via `public/config.json`
+* Clean and modular component design
+* Responsive **3×3 intersection grid**:
+
+    * 🟢 / 🔴 emoji signals for active roads
+    * 👮 emoji at center intersection point
+* Dark/light mode and production build-ready
 
 ---
 
 ## 🖥️ Frontend Architecture
 
-```text
+```
 traffic-ai-react/
 ├── public/
 │   └── config.json              # Runtime-configurable URLs and feature flags
 ├── src/
 │   ├── components/
-│   │   └── IntersectionPage.tsx  # Core UI (logs + upcoming signal visuals)
+│   │   ├── IntersectionPage.tsx  # Core UI wrapper
+│   │   └── IntersectionGrid.tsx  # Grid layout + live signals
 │   ├── hooks/
-│   │   └── useSignalState.ts     # WebSocket logic + state binding
+│   │   └── useSignalState.ts     # WebSocket logic + MobX store updates
 │   ├── stores/
 │   │   ├── ConfigStore.ts
 │   │   ├── SignalStore.ts
 │   │   ├── RootStore.ts
 │   │   └── StoreContext.ts
-│   └── types/
-│       └── SignalState.ts        # Strongly typed signal state model
+│   ├── types/
+│   │   └── SignalState.ts        # Strongly typed signal model
+│   └── index.css                 # Tailwind + custom styles
 ```
 
 ---
@@ -104,7 +117,7 @@ Upload traffic footage with camera identifier.
 * `camera` (Enum) – One of `CAM_A`, `CAM_B`, `CAM_C`, `CAM_D`
 
 **Returns:**
-Metadata + success message
+JSON metadata + success message
 
 ---
 
@@ -166,10 +179,12 @@ custom-vision:
 
 ## 🧭 Roadmap
 
-* 🟢 **\[Next]** Render live 4-road signal intersection with colored signals
-* 🚨 Blink ambulance icons and priority roads during priority mode
-* 📝 Add visual countdown timers per signal
-* 🔍 Camera activity and mock prediction feed simulation
+* 🟢 **\[Next]** Visualize ambulance priority mode:
+
+    * Highlight priority roads
+    * Show ambulance icon or blink effect
+* ⏱️ Countdown timers for signal changes
+* 🔍 Simulated camera activity panel
 
 ---
 
