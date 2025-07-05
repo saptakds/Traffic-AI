@@ -1,0 +1,12 @@
+{
+  "webSocketBaseUrl": "http://localhost:8081/ws",
+  "backEndBaseUrl": "http://localhost:8081/traffic/backend/api/v1",
+  "topics": {
+    "baseUrl": "/topic/v1",
+    "signal": "/traffic-signal/state"
+  },
+  "featureFlags": {
+    "roads": true,
+    "signal": true
+  }
+}
