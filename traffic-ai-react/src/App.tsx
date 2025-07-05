@@ -15,7 +15,7 @@ const App: React.FC = observer(() => {
   if (configStore.isLoading || !configStore.config) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        Hello world!
+        Loading......
       </div>
     );
   }
@@ -23,6 +23,7 @@ const App: React.FC = observer(() => {
   return (
     <IntersectionPage />
   );
+
 });
 
 export default App;

@@ -1,24 +1,17 @@
 import React from 'react';
+import { observer } from 'mobx-react-lite';
 import { useSignalState } from '../hooks/useSignalState';
+import IntersectionGrid from './IntersectionGrid';
 
-const IntersectionPage: React.FC = () => {
-  const signalState = useSignalState();
+const IntersectionPage: React.FC = observer(() => {
+  useSignalState(); // WebSocket subscription
 
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">🚦 Traffic AI Simulation</h1>
-
-      {signalState ? (
-        <div className="bg-gray-800 p-4 rounded text-left text-sm font-mono text-green-300 whitespace-pre">
-          <strong>📡 Real-Time Signal State:</strong>
-          <br />
-          {JSON.stringify(signalState, null, 2)}
-        </div>
-      ) : (
-        <p className="text-gray-400 italic">Waiting for signal updates...</p>
-      )}
+    <div className="min-h-screen w-full flex flex-col items-center justify-center space-y-6 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white transition-colors duration-300">
+      <h1 className="text-3xl font-bold">🚦 Traffic AI Simulation</h1>
+      <IntersectionGrid />
     </div>
   );
-};
+});
 
 export default IntersectionPage;
