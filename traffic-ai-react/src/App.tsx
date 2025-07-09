@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react';
-import { observer } from 'mobx-react-lite';
-import { useStores } from './stores/StoreContext';
-import IntersectionPage from './components/IntersectionPage'; 
+import React, { useEffect } from "react";
+import { observer } from "mobx-react-lite";
+import { useStores } from "./stores/StoreContext";
+import IntersectionPage from "./components/IntersectionPage";
 
 const App: React.FC = observer(() => {
   const { configStore } = useStores();
@@ -20,10 +20,7 @@ const App: React.FC = observer(() => {
     );
   }
 
-  return (
-    <IntersectionPage />
-  );
-
+  return <IntersectionPage />;
 });
 
 export default App;

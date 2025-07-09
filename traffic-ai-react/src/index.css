@@ -51,4 +51,32 @@
       @apply bg-gray-100 text-zinc-800;
     }
   }
+
+  @keyframes siren-border {
+    0%,
+    100% {
+      border-color: red;
+    }
+    50% {
+      border-color: blue;
+    }
+  }
+
+  @keyframes siren-tint {
+    0%,
+    100% {
+      background-color: rgba(34, 197, 94, 0.1); /* green-500/10 */
+    }
+    50% {
+      background-color: rgba(34, 197, 94, 0.4); /* green-500/40 */
+    }
+  }
+
+  .animate-siren-border {
+    animation: siren-border 1s infinite ease-in-out;
+  }
+
+  .animate-siren-tint {
+    animation: siren-tint 1s infinite ease-in-out;
+  }
 }

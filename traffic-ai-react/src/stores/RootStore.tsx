@@ -1,5 +1,5 @@
-import { ConfigStore } from './ConfigStore';
-import { SignalStore } from './SignalStore';
+import { ConfigStore } from "./ConfigStore";
+import { SignalStore } from "./SignalStore";
 
 export class RootStore {
   configStore: ConfigStore;

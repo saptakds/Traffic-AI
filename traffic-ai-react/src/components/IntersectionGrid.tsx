@@ -1,11 +1,7 @@
-import React from 'react';
-import { observer } from 'mobx-react-lite';
-import { useStores } from '../stores/StoreContext';
-import RoadSignal from './RoadSignal';
-
-const Placeholder = () => (
-  <div className="w-full h-full bg-transparent" />
-);
+import React from "react";
+import { observer } from "mobx-react-lite";
+import { useStores } from "../stores/StoreContext";
+import RoadSignal from "./RoadSignal";
 
 const IntersectionGrid: React.FC = observer(() => {
   const { signalStore } = useStores();
@@ -16,21 +12,61 @@ const IntersectionGrid: React.FC = observer(() => {
   }
 
   return (
-    <div className="grid grid-cols-3 grid-rows-3 w-[300px] h-[300px] gap-2 bg-gray-800 text-white rounded-md shadow-lg p-2">
-      {/* Row 1 */}
-      <Placeholder />
-      <RoadSignal road="ROAD_A" color={signalMap.ROAD_A} />
-      <Placeholder />
+    <div className="grid grid-cols-[1fr_150px_1fr] grid-rows-[1fr_150px_1fr] w-screen h-screen">
+      {/* Top (Road A) */}
+      <div className="col-start-2 row-start-1 h-full w-full">
+        <RoadSignal
+          road="ROAD_A"
+          color={signalMap.ROAD_A}
+          isPriority={signalStore.signalState?.priorityRoad === "ROAD_A"}
+          orientation="vertical"
+          stretch="vertical"
+        />
+      </div>
 
-      {/* Row 2 */}
-      <RoadSignal road="ROAD_D" color={signalMap.ROAD_D} />
-      <div className="flex flex-col items-center justify-center w-full h-full rounded text-7xl font-medium">👮</div>
-      <RoadSignal road="ROAD_B" color={signalMap.ROAD_B} />
+      {/* Left (Road D) */}
+      <div className="col-start-1 row-start-2 h-full w-full">
+        <RoadSignal
+          road="ROAD_D"
+          color={signalMap.ROAD_D}
+          isPriority={signalStore.signalState?.priorityRoad === "ROAD_D"}
+          orientation="horizontal"
+          stretch="horizontal"
+        />
+      </div>
 
-      {/* Row 3 */}
-      <Placeholder />
-      <RoadSignal road="ROAD_C" color={signalMap.ROAD_C} />
-      <Placeholder />
+      {/* Center */}
+      <div className="col-start-2 row-start-2 flex items-center justify-center bg-zinc-700 rounded">
+        {signalStore.signalState?.isPriorityMode ? (
+          <div className="text-black font-bold animate-pulse">
+            🚨 {signalStore.signalState?.priorityRoad?.replace("ROAD_", "")}
+          </div>
+        ) : (
+          <span className="text-3xl">👮</span>
+        )}
+      </div>
+
+      {/* Right (Road B) */}
+      <div className="col-start-3 row-start-2 h-full w-full">
+        <RoadSignal
+          road="ROAD_B"
+          color={signalMap.ROAD_B}
+          isPriority={signalStore.signalState?.priorityRoad === "ROAD_B"}
+          orientation="horizontal"
+          stretch="horizontal"
+        />
+      </div>
+
+      {/* Bottom (Road C) */}
+      <div className="col-start-2 row-start-3 h-full w-full">
+        <RoadSignal
+          road="ROAD_C"
+          color={signalMap.ROAD_C}
+          isPriority={signalStore.signalState?.priorityRoad === "ROAD_C"}
+          orientation="vertical"
+          stretch="vertical"
+        />
+      </div>
     </div>
   );
 });
