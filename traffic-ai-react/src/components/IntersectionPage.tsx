@@ -1,15 +1,22 @@
-import React from 'react';
-import { observer } from 'mobx-react-lite';
-import { useSignalState } from '../hooks/useSignalState';
-import IntersectionGrid from './IntersectionGrid';
+import React from "react";
+import { observer } from "mobx-react-lite";
+import { useSignalState } from "../hooks/useSignalState";
+import IntersectionGrid from "./IntersectionGrid";
 
 const IntersectionPage: React.FC = observer(() => {
-  useSignalState(); // WebSocket subscription
+  useSignalState();
 
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center space-y-6 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white transition-colors duration-300">
-      <h1 className="text-3xl font-bold">🚦 Traffic AI Simulation</h1>
-      <IntersectionGrid />
+    <div className="min-h-screen w-full flex flex-col bg-zinc-900 text-white relative">
+      {/* Title pinned to top-left */}
+      <div className="absolute top-4 left-4 text-xl font-bold flex items-center gap-2">
+        <span>🚦</span> <span>Traffic AI Simulation</span>
+      </div>
+
+      {/* Centered intersection */}
+      <div className="flex flex-1 items-center justify-center">
+        <IntersectionGrid />
+      </div>
     </div>
   );
 });

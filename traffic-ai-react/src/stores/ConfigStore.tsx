@@ -1,4 +1,4 @@
-import { makeAutoObservable } from 'mobx';
+import { makeAutoObservable } from "mobx";
 
 interface Config {
   webSocketBaseUrl: string;
@@ -24,16 +24,16 @@ export class ConfigStore {
 
   async loadConfig() {
     try {
-      const res = await fetch('/config.json');
-      if (!res.ok) throw new Error('Failed to load config.json');
+      const res = await fetch("/config.json");
+      if (!res.ok) throw new Error("Failed to load config.json");
 
       const data = await res.json();
       this.setConfig(data);
       this.setInitialized(true);
       this.loaded();
-      console.log('✅ Config loaded:', data);
+      console.log("✅ Config loaded:", data);
     } catch (error) {
-      console.error('❌ Error loading config:', error);
+      console.error("❌ Error loading config:", error);
       this.unload();
     }
   }
