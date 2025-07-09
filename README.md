@@ -22,7 +22,7 @@ TrafficAI proposes an AI-first, automation-friendly solution:
 
 ---
 
-## ✅ Current Capabilities (as of Day 5)
+## ✅ Current Capabilities (as of **Day 6**)
 
 ### 🔼 Video Upload & Ingestion
 
@@ -39,7 +39,7 @@ TrafficAI proposes an AI-first, automation-friendly solution:
 
 ### 🧠 Ambulance Detection (AI)
 
-* Integrated with Azure Custom Vision
+* Integrated with **Azure Custom Vision**
 * Supports **decoy mode** for safe testing
 * Logs ambulance detection results with confidence
 * Maps each camera to a road (`ROAD_A` to `ROAD_D`)
@@ -48,37 +48,44 @@ TrafficAI proposes an AI-first, automation-friendly solution:
 
 * Round-robin switching every 10 seconds (**configurable**)
 * **Priority mode** for ambulance-detected roads
-* Priority persists for 30 seconds (**configurable**), then reverts
+* Priority persists for 30 seconds (**configurable**) then reverts
 * Logs signal state transitions with timestamps and clarity
 
 ### 📡 Real-Time WebSocket Integration
 
 * Signal state updates published to: `/topic/v1/traffic-signal/state`
 * WebSocket endpoint: `/ws`, powered by **STOMP over SockJS**
-* Verified working with HTML + SockJS test client
+* Live tested with both React UI and raw SockJS clients
 
 ---
 
-### 💻 Frontend Simulation UI — Round-Robin Mode Now Live!
+## 💻 Frontend Simulation UI — **Ambulance Priority Now Visualized!**
 
-TrafficAI now features a working **React 19 frontend** that visualizes **real-time round-robin traffic signal behavior** at a 4-road intersection.
+TrafficAI now features a **visually enhanced React frontend** that reflects both **round-robin** and **ambulance-priority** traffic modes in real time.
 
-> 🟡 **Note:** As of Day 5, this UI handles only **round-robin mode**.
-> 🚨 **Ambulance detection and priority visualizations** are planned for Day 6.
+**New Features Completed in Day 6:**
 
-**Features completed:**
+* 🔴🟢 **Tinted road background** based on signal state (subtle red/green glow)
+* 🚑 **Ambulance icon overlay** for priority road
+* 🎆 **Siren-style animation**:
 
-* Built with **Vite + React + TypeScript**
-* Uses **Tailwind CSS** for layout and theming
-* WebSocket-driven updates from backend
-* State management via **MobX** root store pattern
-* Config-driven architecture via `public/config.json`
-* Clean and modular component design
-* Responsive **3×3 intersection grid**:
+  * 🔁 Alternating **red/blue border**
+  * 💡 Blinking **green tint** layer during ambulance mode
+* 🧩 Componentized and responsive **3×3 intersection grid layout**
+* ✅ All visuals updated via real-time **WebSocket state**
+* 🎨 Fully styled with **Tailwind CSS** and custom animations
 
-    * 🟢 / 🔴 emoji signals for active roads
-    * 👮 emoji at center intersection point
-* Dark/light mode and production build-ready
+---
+
+### 🌐 Intersection UI Behavior
+
+| Feature              | Round-Robin Mode | Ambulance-Priority Mode |
+| -------------------- | ---------------- | ----------------------- |
+| Road Border Color    | Green / Red      | Blinks Red/Blue         |
+| Tint Background      | Subtle Green/Red | Pulsing Green Tint      |
+| Ambulance Emoji (🚑) | ❌                | ✅ Appears on road       |
+| Center Icon          | 👮               | 🚨 + Road name          |
+| Divider Line         | Dotted white     | Dotted white            |
 
 ---
 
@@ -90,17 +97,17 @@ traffic-ai-react/
 │   └── config.json              # Runtime-configurable URLs and feature flags
 ├── src/
 │   ├── components/
-│   │   ├── IntersectionPage.tsx  # Core UI wrapper
-│   │   └── IntersectionGrid.tsx  # Grid layout + live signals
+│   │   ├── RoadSignal.tsx        # Visual unit per road
+│   │   ├── IntersectionGrid.tsx  # Lays out roads in 3×3 grid
+│   │   └── IntersectionPage.tsx  # Top-level wrapper
 │   ├── hooks/
-│   │   └── useSignalState.ts     # WebSocket logic + MobX store updates
-│   ├── stores/
+│   │   └── useSignalState.ts     # WebSocket connection + store updates
+│   ├── stores/                   # MobX stores
 │   │   ├── ConfigStore.ts
 │   │   ├── SignalStore.ts
-│   │   ├── RootStore.ts
-│   │   └── StoreContext.ts
+│   │   └── RootStore.ts
 │   ├── types/
-│   │   └── SignalState.ts        # Strongly typed signal model
+│   │   └── SignalState.ts        # Signal structure types
 │   └── index.css                 # Tailwind + custom styles
 ```
 
@@ -136,7 +143,7 @@ interface SignalState {
 
 ---
 
-## 🛠️ Config (Backend `application.yml`)
+## ⚙️ Backend Config (`application.yml`)
 
 ```yaml
 traffic-ai:
@@ -158,7 +165,7 @@ custom-vision:
 
 ---
 
-## ⚙️ Config (Frontend `public/config.json`)
+## ⚙️ Frontend Config (`public/config.json`)
 
 ```json
 {
@@ -179,12 +186,11 @@ custom-vision:
 
 ## 🧭 Roadmap
 
-* 🟢 **\[Next]** Visualize ambulance priority mode:
-
-    * Highlight priority roads
-    * Show ambulance icon or blink effect
-* ⏱️ Countdown timers for signal changes
-* 🔍 Simulated camera activity panel
+* 🔁 Animate ambulance emoji (bounce/flash)
+* 📱 Mobile responsiveness polish
+* ⏱️ Show signal change countdowns
+* 🎦 Simulated CCTV stream thumbnails (mock)
+* 🧪 Add unit test coverage for frontend
 
 ---
 
@@ -192,4 +198,4 @@ custom-vision:
 
 Built with ❤️ by [Saptak Das](https://github.com/saptakds)
 
-Exploring practical AI for smarter cities and public safety.
+> Exploring practical AI for smarter cities and public safety.
