@@ -20,7 +20,7 @@ traffic-ai:
     interval-seconds: 5
 custom-vision:
   prediction:
-    decoy-mode: true
+    decoy-mode: false
     key: ${CV_PREDICTION_KEY}
     endpoint: ${CV_PREDICTION_ENDPOINT}
     project-id: ${CV_PREDICTION_PROJECT_ID}
