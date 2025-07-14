@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.*;
 
 import static com.saptak.trafficai.common.Strings.WEBSOCKET_VERSION_1;
 
@@ -22,11 +22,15 @@ import static com.saptak.trafficai.common.Strings.WEBSOCKET_VERSION_1;
 @RequiredArgsConstructor
 public class SignalControlStateManager {
     private static final Logger logger = LoggerFactory.getLogger(SignalControlStateManager.class);
+
     private final SignalConfig signalConfig;
     private final SimpMessagingTemplate messagingTemplate;
 
     private final Map<Road, Signal> signalMap = new ConcurrentHashMap<>();
     private final List<Road> roads = List.of(Road.values());
+
+    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+    private ScheduledFuture<?> roundRobinFuture;
 
     private volatile boolean priorityMode = false;
     private volatile Road priorityRoad = null;
@@ -35,22 +39,34 @@ public class SignalControlStateManager {
 
     @PostConstruct
     public void init() {
-        // Starts with ROAD_A green, rest red
         for (Road road : roads) {
             signalMap.put(road, Signal.RED);
         }
         signalMap.put(roads.getFirst(), Signal.GREEN);
-        logger.info("Initialized signal state: {}", getCurrentState());
 
+        logger.info("Initialized signal state: {}", getCurrentState());
         broadcastStateChange();
         logger.info("Signal interval: {} ms", signalConfig.getRoundRobinIntervalMs());
+
+        startRoundRobin();
     }
 
-    @Scheduled(
-            fixedRateString = "${traffic-ai.signal.round-robin-interval-ms}",
-            initialDelayString = "${traffic-ai.signal.round-robin-interval-ms}"
-    )
-    public synchronized void rotateSignalsIfNotInPriorityMode() {
+    private void startRoundRobin() {
+        roundRobinFuture = scheduler.scheduleAtFixedRate(
+                this::rotateSignalsIfNotInPriorityMode,
+                signalConfig.getRoundRobinIntervalMs(),
+                signalConfig.getRoundRobinIntervalMs(),
+                TimeUnit.MILLISECONDS
+        );
+    }
+
+    private void stopRoundRobin() {
+        if (roundRobinFuture != null && !roundRobinFuture.isCancelled()) {
+            roundRobinFuture.cancel(false);
+        }
+    }
+
+    private synchronized void rotateSignalsIfNotInPriorityMode() {
         if (priorityMode) return;
 
         Road currentGreen = roads.get(currentIndex);
@@ -71,6 +87,8 @@ public class SignalControlStateManager {
             priorityRoad = road;
             priorityStartTime = System.currentTimeMillis();
 
+            stopRoundRobin();
+
             for (Road r : roads) {
                 signalMap.put(r, r == road ? Signal.GREEN : Signal.RED);
             }
@@ -79,7 +97,6 @@ public class SignalControlStateManager {
             broadcastStateChange();
         }
     }
-
 
     public synchronized void exitPriorityModeIfSafe(Road road) {
         if (priorityMode && road.equals(priorityRoad)) {
@@ -91,8 +108,10 @@ public class SignalControlStateManager {
                 signalMap.put(r, r == roads.get(currentIndex) ? Signal.GREEN : Signal.RED);
             }
 
-            logger.info("Resumed round-robin state: {}", getCurrentState());
+            logger.info("Resumed round-robin from {}: {}", roads.get(currentIndex), getCurrentState());
             broadcastStateChange();
+
+            scheduler.schedule(this::startRoundRobin, signalConfig.getRoundRobinIntervalMs(), TimeUnit.MILLISECONDS);
         }
     }
 
@@ -109,10 +128,15 @@ public class SignalControlStateManager {
     }
 
     public synchronized SignalState getCurrentState() {
+        int interval = priorityMode
+                ? (int) (signalConfig.getPriorityTimeoutMs() / 1000)
+                : (int) (signalConfig.getRoundRobinIntervalMs() / 1000);
+
         return SignalState.builder()
                 .signalMap(Map.copyOf(signalMap))
                 .isPriorityMode(priorityMode)
                 .priorityRoad(priorityRoad)
+                .intervalSec(interval)
                 .build();
     }
 }

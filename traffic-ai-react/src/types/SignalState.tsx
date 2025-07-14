@@ -6,4 +6,5 @@ export interface SignalState {
   signalMap: Record<Road, SignalColor>;
   isPriorityMode: boolean;
   priorityRoad: Road | null;
+  intervalSec: number;
 }

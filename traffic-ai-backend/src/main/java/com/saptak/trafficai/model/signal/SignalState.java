@@ -13,4 +13,5 @@ public class SignalState {
     private Map<Road, Signal> signalMap;
     private boolean isPriorityMode;
     private Road priorityRoad;
+    private int intervalSec;
 }
