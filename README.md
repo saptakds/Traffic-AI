@@ -22,7 +22,25 @@ TrafficAI proposes an AI-first, automation-friendly solution:
 
 ---
 
-## ✅ Current Capabilities (as of **Day 6**)
+## 📌 Assumptions & Scope of This Prototype
+
+To keep the prototype focused and lean, the following assumptions were made:
+
+| Aspect                       | Assumption                                                                |
+| ---------------------------- | ------------------------------------------------------------------------- |
+| 🚦 Intersection Type         | 4-way crossing (North, South, East, West)                                 |
+| 🛣️ Road Labels              | `ROAD_A`, `ROAD_B`, `ROAD_C`, `ROAD_D`                                    |
+| 📷 Camera Mapping            | Each road has one camera: `CAM_A` to `CAM_D`                              |
+| 🔁 Round-Robin Cycle         | Signals switch every **30 seconds** (configurable)                        |
+| 🚑 Priority Mode Duration    | Ambulance-priority signal stays green for **60 seconds** (configurable)   |
+| ⏱️ Frame Extraction Interval | Every **5 seconds**, using **JavaCV**                                     |
+| 🔄 State Reset               | After priority ends, round-robin resumes from the **next road** logically |
+| 💾 Storage                   | DB-less design using filesystem + in-memory state                         |
+| 🧪 Testing Mode              | **Decoy mode** available for safe AI simulation                           |
+
+---
+
+## ✅ Current Capabilities (as of **Day 7** — Final Prototype)
 
 ### 🔼 Video Upload & Ingestion
 
@@ -46,10 +64,11 @@ TrafficAI proposes an AI-first, automation-friendly solution:
 
 ### 🚦 Traffic Signal Control Logic
 
-* Round-robin switching every 10 seconds (**configurable**)
+* Round-robin switching every 30 seconds (**configurable**)
 * **Priority mode** for ambulance-detected roads
-* Priority persists for 30 seconds (**configurable**) then reverts
-* Logs signal state transitions with timestamps and clarity
+* Maintains green signal for 60 seconds (**configurable**)
+* Resumes round-robin **seamlessly** from the next road after priority
+* Logs all signal transitions with timestamps
 
 ### 📡 Real-Time WebSocket Integration
 
@@ -63,7 +82,7 @@ TrafficAI proposes an AI-first, automation-friendly solution:
 
 TrafficAI now features a **visually enhanced React frontend** that reflects both **round-robin** and **ambulance-priority** traffic modes in real time.
 
-**New Features Completed in Day 6:**
+**Features Completed in Day 7:**
 
 * 🔴🟢 **Tinted road background** based on signal state (subtle red/green glow)
 * 🚑 **Ambulance icon overlay** for priority road
@@ -148,8 +167,8 @@ interface SignalState {
 ```yaml
 traffic-ai:
   signal:
-    round-robin-interval-ms: 10000
-    priority-timeout-ms: 30000
+    round-robin-interval-ms: 30000
+    priority-timeout-ms: 60000
   frame-extraction:
     interval-seconds: 5
 
@@ -184,13 +203,20 @@ custom-vision:
 
 ---
 
-## 🧭 Roadmap
+## 🧠 A Brain of Its Own — Designed, But Separate
 
-* 🔁 Animate ambulance emoji (bounce/flash)
-* 📱 Mobile responsiveness polish
-* ⏱️ Show signal change countdowns
-* 🎦 Simulated CCTV stream thumbnails (mock)
-* 🧪 Add unit test coverage for frontend
+TrafficAI’s core prototype ends here — functional, modular, and reactive.
+However, we’ve already planned the **next leap**: giving it a **brain of its own**.
+
+This **aftermath patch**, planned post-prototype, will:
+
+* ✅ Allow traffic wardens to report false positives manually
+* ✅ Automatically save those frame sets for retraining
+* ✅ Operate **independently** of this prototype
+* ✅ Enable weekly **adaptive retraining cycles** with Azure Custom Vision
+
+While not part of the public codebase, the plan is in place.
+**The system will learn — not just respond.**
 
 ---
 

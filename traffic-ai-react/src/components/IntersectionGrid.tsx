@@ -8,8 +8,12 @@ const IntersectionGrid: React.FC = observer(() => {
   const signalMap = signalStore.signalState?.signalMap;
 
   if (!signalMap) {
-    return <p className="text-gray-400 italic">Waiting for signal state...</p>;
-  }
+  return (
+    <div className="pt-24 text-gray-400 italic text-lg">
+      Waiting for signal state...
+    </div>
+  );
+}
 
   return (
     <div className="grid grid-cols-[1fr_150px_1fr] grid-rows-[1fr_150px_1fr] w-screen h-screen">

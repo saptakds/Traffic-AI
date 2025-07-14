@@ -14,13 +14,13 @@ server:
   port: 8081
 traffic-ai:
   signal:
-    round-robin-interval-ms: 10000
-    priority-timeout-ms: 30000
+    round-robin-interval-ms: 30000
+    priority-timeout-ms: 60000
   frame-extraction:
     interval-seconds: 5
 custom-vision:
   prediction:
-    decoy-mode: true
+    decoy-mode: false
     key: ${CV_PREDICTION_KEY}
     endpoint: ${CV_PREDICTION_ENDPOINT}
     project-id: ${CV_PREDICTION_PROJECT_ID}

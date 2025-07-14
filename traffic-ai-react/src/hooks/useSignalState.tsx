@@ -53,5 +53,6 @@ export function useSignalState() {
     };
   }, [configStore.isInitialized, configStore.config, signalStore]);
 
-  return signalStore.signalState;
+  return { signalState: signalStore.signalState };
 }
+
